@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_inherit_balance" inherit_id="account.report_invoice_document">
+        <!-- Add custom CSS for the premium look -->
+        <xpath expr="." position="inside">
+            <style>
+                .statement-container {
+                    margin-top: 30px;
+                    border-top: 2px solid #333;
+                    padding-top: 15px;
+                }
+                .statement-table {
+                    width: 100%;
+                    border-collapse: separate;
+                    border-spacing: 0 5px;
+                }
+                .statement-table td {
+                    padding: 8px 15px;
+                    font-size: 13px;
+                }
+                .statement-label {
+                    color: #666;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    letter-spacing: 0.5px;
+                    width: 70%;
+                }
+                .statement-value {
+                    text-align: right;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-weight: 600;
+                }
+                .statement-total-row {
+                    background-color: #f8f9fa;
+                    border-radius: 4px;
+                }
+                .statement-grand-total {
+                    background-color: #333;
+                    color: white;
+                    border-radius: 4px;
+                }
+                .statement-grand-total .statement-label {
+                    color: #fff;
+                }
+            </style>
+        </xpath>
+
+        <!-- Inject the content -->
+        <xpath expr="//div[@id='total']" position="after">
+            <div class="row justify-content-end statement-container" style="page-break-inside: avoid;">
+                <div class="col-6">
+                    <table class="statement-table">
+                        <!-- Invoice Amount -->
+                        <tr>
+                            <td class="statement-label">Invoice Amount / صافي الفاتورة</td>
+                            <td class="statement-value">
+                                <span t-field="o.amount_total"/>
+                            </td>
+                        </tr>
+                        <!-- Previous Balance -->
+                        <tr>
+                            <td class="statement-label">Previous Balance / رصيد سابق</td>
+                            <td class="statement-value">
+                                <span t-field="o.partner_previous_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <!-- Grand Total -->
+                        <tr class="statement-total-row">
+                            <td class="statement-label" style="border-top: 1px solid #dee2e6;">Total Exposure / الإجمالي المستحق</td>
+                            <td class="statement-value" style="border-top: 1px solid #dee2e6;">
+                                <span t-field="o.partner_total_due" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <!-- Amount Paid -->
+                        <tr>
+                            <td class="statement-label">Amount Paid / المسدد</td>
+                            <td class="statement-value text-success">
+                                <span t-esc="o.amount_total - o.amount_residual" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <!-- Final Balance -->
+                        <tr class="statement-grand-total">
+                            <td class="statement-label">Final Balance / الرصيد المتبقي</td>
+                            <td class="statement-value">
+                                <strong><span t-field="o.amount_residual"/></strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

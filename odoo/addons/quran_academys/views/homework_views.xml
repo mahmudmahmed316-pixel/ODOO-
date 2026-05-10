@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Homework Tree View -->
+        <record id="view_academy_homework_tree" model="ir.ui.view">
+            <field name="name">academy.homework.tree</field>
+            <field name="model">academy.homework</field>
+            <field name="arch" type="xml">
+                <list string="Homework">
+                    <field name="student_id"/>
+                    <field name="session_id"/>
+                    <field name="course_id"/>
+                    <field name="filename"/>
+                    <field name="state" widget="badge" decoration-success="state == 'reviewed'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Homework Form View -->
+        <record id="view_academy_homework_form" model="ir.ui.view">
+            <field name="name">academy.homework.form</field>
+            <field name="model">academy.homework</field>
+            <field name="arch" type="xml">
+                <form string="Homework">
+                    <header>
+                        <button name="action_reviewed" string="Mark as Reviewed" type="object" class="oe_highlight" invisible="state != 'submitted'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="submitted,reviewed"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="student_id"/>
+                                <field name="session_id"/>
+                                <field name="course_id"/>
+                            </group>
+                            <group>
+                                <field name="filename" invisible="1"/>
+                                <field name="file" filename="filename" widget="binary"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Teacher Notes">
+                                <field name="teacher_notes"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for Homework -->
+        <record id="action_academy_homework" model="ir.actions.act_window">
+            <field name="name">Homework Submissions</field>
+            <field name="res_model">academy.homework</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Menu for Homework -->
+        <menuitem id="menu_academy_homework"
+                  name="Homework"
+                  parent="menu_academy_operations"
+                  action="action_academy_homework"
+                  sequence="30"/>
+    </data>
+</odoo>
+

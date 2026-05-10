@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Application Category -->
+        <record id="module_category_quran_academy" model="ir.module.category">
+            <field name="name">Quran Academy</field>
+            <field name="description">Helps you manage your Quran Academy.</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Access Groups -->
+        <record id="group_academy_teacher" model="res.groups">
+            <field name="name">Teacher</field>
+            <field name="category_id" ref="module_category_quran_academy"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_academy_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_category_quran_academy"/>
+            <field name="implied_ids" eval="[(4, ref('group_academy_teacher'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+        
+        <record id="group_academy_student" model="res.groups">
+            <field name="name">Student (Portal)</field>
+            <field name="category_id" ref="module_category_quran_academy"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- Record Rules -->
+        <!-- Students only see their own homework -->
+        <record id="rule_academy_homework_student" model="ir.rule">
+            <field name="name">Student Homework Rule</field>
+            <field name="model_id" ref="model_academy_homework"/>
+            <field name="domain_force">[('student_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_student'))]"/>
+        </record>
+
+        <!-- Teachers see all homework -->
+        <record id="rule_academy_homework_teacher" model="ir.rule">
+            <field name="name">Teacher Homework Rule</field>
+            <field name="model_id" ref="model_academy_homework"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_teacher'))]"/>
+        </record>
+
+        <!-- Students only see their own session evaluations -->
+        <record id="rule_academy_session_line_student" model="ir.rule">
+            <field name="name">Student Session Evaluation Rule</field>
+            <field name="model_id" ref="model_academy_session_line"/>
+            <field name="domain_force">[('student_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_student'))]"/>
+        </record>
+
+        <!-- Teachers see all session evaluations -->
+        <record id="rule_academy_session_line_teacher" model="ir.rule">
+            <field name="name">Teacher Session Evaluation Rule</field>
+            <field name="model_id" ref="model_academy_session_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_teacher'))]"/>
+        </record>
+
+        <!-- Students only see their own subscriptions -->
+        <record id="rule_academy_subscription_student" model="ir.rule">
+            <field name="name">Student Subscription Rule</field>
+            <field name="model_id" ref="model_academy_subscription"/>
+            <field name="domain_force">[('student_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_student'))]"/>
+        </record>
+
+        <!-- Teachers see all subscriptions -->
+        <record id="rule_academy_subscription_teacher" model="ir.rule">
+            <field name="name">Teacher Subscription Rule</field>
+            <field name="model_id" ref="model_academy_subscription"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_academy_teacher'))]"/>
+        </record>
+    </data>
+</odoo>

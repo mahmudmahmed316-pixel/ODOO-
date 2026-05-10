@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Scheduled Action for Session Reminders -->
+        <record id="ir_cron_session_reminder" model="ir.cron">
+            <field name="name">Quran Academy: Session Reminders (Every 5 mins)</field>
+            <field name="model_id" ref="model_academy_session"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_send_session_reminders()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

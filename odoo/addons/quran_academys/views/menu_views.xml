@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Root Menu -->
+        <menuitem id="menu_quran_academy_root"
+                  name="Quran Academy"
+                  web_icon="quran_academy,static/description/icon.png"
+                  sequence="10"/>
+
+        <!-- Main Menus -->
+        <menuitem id="menu_academy_operations"
+                  name="Operations"
+                  parent="menu_quran_academy_root"
+                  sequence="10"/>
+
+        <menuitem id="menu_academy_configuration"
+                  name="Configuration"
+                  parent="menu_quran_academy_root"
+                  sequence="100"
+                  groups="quran_academys.group_academy_manager"/>
+    </data>
+</odoo>
+

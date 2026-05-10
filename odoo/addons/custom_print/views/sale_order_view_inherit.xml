@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_custom_print" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.custom.print</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <!-- Using type="object" is safer if the server is restarted -->
+                <button name="action_custom_print_cog" type="object" icon="fa-gear" class="btn-link" title="Commercial Print Settings / إعدادات الطباعة التجارية"/>
+                <button name="action_print_commercial_invoice_report" type="object" string="Commercial Invoice / فاتورة تجارية" class="btn-primary" invisible="state not in ['sale', 'done']"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_form_inherit_custom_print" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.custom.print</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_custom_print_cog" type="object" icon="fa-gear" class="btn-link" title="Commercial Print Settings / إعدادات الطباعة التجارية"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

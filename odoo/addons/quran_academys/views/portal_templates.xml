@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Portal Menu entries -->
+        <template id="portal_my_home_menu_academy" name="Portal layout : academy menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+            <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+                <li t-if="page_name == 'academy_dashboard'" class="breadcrumb-item">
+                    <a href="/my/dashboard">Dashboard</a>
+                </li>
+                <li t-if="page_name == 'academy_sessions'" class="breadcrumb-item">
+                    <a href="/my/dashboard">Dashboard</a> / Sessions
+                </li>
+                <li t-if="page_name == 'academy_homework'" class="breadcrumb-item">
+                    <a href="/my/dashboard">Dashboard</a> / Homework
+                </li>
+            </xpath>
+        </template>
+
+        <template id="portal_my_home_academy" name="Show Academy in my portal" inherit_id="portal.portal_my_home" priority="20">
+            <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Academy Dashboard</t>
+                    <t t-set="text">Track your progress and assignments</t>
+                    <t t-set="url" t-value="'/my/dashboard'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </xpath>
+        </template>
+
+        <!-- Dashboard Template -->
+        <template id="portal_academy_dashboard" name="Academy Dashboard">
+            <t t-call="portal.portal_layout">
+                <style>
+                    .academy-card {
+                        border: none;
+                        border-radius: 15px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                        transition: transform 0.2s;
+                        overflow: hidden;
+                    }
+                    .academy-card:hover {
+                        transform: translateY(-5px);
+                    }
+                    .bg-gradient-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+                    .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+                    .bg-gradient-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+                    .bg-gradient-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+                    .text-white h4, .text-white h6, .text-white h2 { color: white !important; }
+                    .academy-table-card {
+                        border-radius: 15px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                        border: none;
+                    }
+                    .academy-table-card .card-header {
+                        background-color: white;
+                        border-bottom: 1px solid #f0f0f0;
+                        border-radius: 15px 15px 0 0 !important;
+                        padding: 1.25rem;
+                    }
+                    .table-hover tbody tr:hover { background-color: #f8f9fa; }
+                    .badge-glow-blue { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid #0d6efd; }
+                    .badge-glow-green { background-color: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid #198754; }
+                    .badge-glow-yellow { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; }
+                    .badge-glow-red { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; }
+                </style>
+                
+                <t t-if="warning">
+                    <div class="alert alert-warning mt-4 shadow-sm rounded-3 border-0" role="alert">
+                        <i class="fa fa-exclamation-circle me-2 fs-5 align-middle"/> <span class="align-middle"><t t-esc="warning"/></span>
+                    </div>
+                </t>
+                
+                <t t-if="student">
+                    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                        <h2 class="fw-bold text-dark mb-0">Welcome back, <t t-esc="student.name"/>! 👋</h2>
+                        <t t-if="len(students) > 1">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle rounded-pill px-4" type="button" id="studentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-user-circle me-2"/> <t t-esc="student.name"/>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="studentDropdown">
+                                    <t t-foreach="students" t-as="s">
+                                        <li><a class="dropdown-item" t-attf-href="?student_id=#{s.id}"><t t-esc="s.name"/></a></li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </t>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <!-- Summary Cards -->
+                        <div class="col-md-3">
+                            <div class="card academy-card bg-gradient-warning text-white h-100 p-4">
+                                <h5 class="fw-light mb-1"><i class="fa fa-star me-2"/>Subscription</h5>
+                                <t t-if="student.active_subscription_id">
+                                    <div class="text-truncate mt-3 opacity-75 small"><t t-esc="student.active_subscription_id.name"/></div>
+                                    <h2 class="fw-bold mt-1 mb-0"><t t-esc="student.remaining_sessions"/> <span class="fs-6 fw-normal opacity-75">/ <t t-esc="student.active_subscription_id.allowed_sessions"/> sessions</span></h2>
+                                </t>
+                                <t t-else="">
+                                    <div class="mt-4"><span class="badge bg-white text-warning px-3 py-2">No Active Plan</span></div>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card academy-card bg-gradient-primary text-white h-100 p-4">
+                                <h5 class="fw-light mb-1"><i class="fa fa-calendar-check-o me-2"/>Attendance</h5>
+                                <h2 class="fw-bold mt-auto mb-0 display-5"><t t-esc="attendance_rate"/>%</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card academy-card bg-gradient-info text-white h-100 p-4">
+                                <h5 class="fw-light mb-1"><i class="fa fa-clock-o me-2"/>Upcoming</h5>
+                                <h2 class="fw-bold mt-auto mb-0 display-5"><t t-esc="len(upcoming_sessions)"/> <span class="fs-6 fw-normal opacity-75">sessions</span></h2>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card academy-card bg-gradient-success text-white h-100 p-4 d-flex flex-column justify-content-center">
+                                <h5 class="fw-light mb-3 text-center"><i class="fa fa-rocket me-2"/>Quick Actions</h5>
+                                <a href="/my/sessions" class="btn btn-light rounded-pill mb-2 fw-bold text-success shadow-sm">View All Sessions</a>
+                                <a href="/my/homework" class="btn btn-outline-light rounded-pill fw-bold text-white">Upload Homework</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-5">
+                        <!-- Upcoming Sessions -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card academy-table-card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 fw-bold text-dark"><i class="fa fa-calendar me-2 text-primary"/>Upcoming Sessions</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light text-secondary">
+                                            <tr>
+                                                <th class="ps-4 border-0">Date &amp; Time</th>
+                                                <th class="border-0">Course</th>
+                                                <th class="border-0">Teacher</th>
+                                                <th class="pe-4 border-0 text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="upcoming_sessions" t-as="session">
+                                                <td class="ps-4"><span class="fw-bold text-dark" t-field="session.date" t-options="{'widget': 'datetime', 'format': 'dd MMM, HH:mm'}"/></td>
+                                                <td><span class="badge bg-light text-dark border"><span t-field="session.course_id.name"/></span></td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white" style="width: 28px; height: 28px; font-size: 12px;">
+                                                            <t t-esc="session.teacher_id.name[0] if session.teacher_id.name else 'T'"/>
+                                                        </div>
+                                                        <span class="text-muted"><t t-esc="session.teacher_id.name"/></span>
+                                                    </div>
+                                                </td>
+                                                <td class="pe-4 text-end">
+                                                    <t t-if="session.meeting_link">
+                                                        <a t-att-href="session.meeting_link" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="fa fa-video-camera me-1"/> Join</a>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span class="text-muted small">No Link</span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="not upcoming_sessions">
+                                                <td colspan="4" class="text-center text-muted py-5">
+                                                    <i class="fa fa-coffee fa-3x mb-3 opacity-25"></i>
+                                                    <p class="mb-0">No upcoming sessions. Time to relax!</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latest Evaluations -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card academy-table-card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 fw-bold text-dark"><i class="fa fa-line-chart me-2 text-primary"/>Latest Evaluations</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light text-secondary">
+                                            <tr>
+                                                <th class="ps-4 border-0">Date</th>
+                                                <th class="border-0">Course</th>
+                                                <th class="border-0">Next Homework</th>
+                                                <th class="pe-4 border-0 text-end">Evaluation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="evaluations" t-as="eval">
+                                                <td class="ps-4"><span class="fw-bold text-dark" t-field="eval.session_id.date" t-options="{'widget': 'date', 'format': 'dd MMM'}"/></td>
+                                                <td><span class="text-muted"><t t-esc="eval.session_id.course_id.name"/></span></td>
+                                                <td><span class="text-muted"><t t-esc="eval.next_homework"/></span></td>
+                                                <td class="pe-4 text-end">
+                                                    <span t-if="eval.status_color == 'blue'" class="badge rounded-pill badge-glow-blue px-3 py-2">Excellent</span>
+                                                    <span t-if="eval.status_color == 'green'" class="badge rounded-pill badge-glow-green px-3 py-2">Good</span>
+                                                    <span t-if="eval.status_color == 'yellow'" class="badge rounded-pill badge-glow-yellow px-3 py-2">Needs Focus</span>
+                                                    <span t-if="eval.status_color == 'red'" class="badge rounded-pill badge-glow-red px-3 py-2">Weak</span>
+                                                    <span t-if="eval.status_color == 'gray'" class="badge rounded-pill bg-light text-secondary border px-3 py-2">Absent</span>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="not evaluations">
+                                                <td colspan="3" class="text-center text-muted py-5">
+                                                    <i class="fa fa-inbox fa-3x mb-3 opacity-25"></i>
+                                                    <p class="mb-0">No evaluations recorded yet.</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <!-- Sessions List Template -->
+        <template id="portal_my_sessions" name="My Sessions">
+            <t t-call="portal.portal_layout">
+                <t t-set="breadcrumbs_searchbar" t-value="True"/>
+                
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Sessions</t>
+                </t>
+
+                <div class="table-responsive">
+                    <table class="table table-hover o_portal_my_doc_table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Course</th>
+                                <th>Attendance</th>
+                                <th>Recitation</th>
+                                <th>Memorization</th>
+                                <th>Homework</th>
+                                <th>Next Homework</th>
+                                <th>Rating</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="evaluations" t-as="eval">
+                                <td><span t-field="eval.session_id.date" t-options="{'widget': 'date'}"/></td>
+                                <td><span t-field="eval.session_id.course_id.name"/></td>
+                                <td><span t-field="eval.attendance"/></td>
+                                <td><span t-field="eval.recitation_level"/></td>
+                                <td><span t-field="eval.memorization"/></td>
+                                <td>
+                                    <span t-if="eval.homework_done" class="text-success"><i class="fa fa-check"/> Yes</span>
+                                    <span t-else="" class="text-danger"><i class="fa fa-times"/> No</span>
+                                </td>
+                                <td><span t-field="eval.next_homework"/></td>
+                                <td><span t-field="eval.session_rating"/></td>
+                                <td>
+                                    <span t-if="eval.status_color == 'blue'" class="badge rounded-pill text-bg-info">Excellent</span>
+                                    <span t-if="eval.status_color == 'green'" class="badge rounded-pill text-bg-success">Good</span>
+                                    <span t-if="eval.status_color == 'yellow'" class="badge rounded-pill text-bg-warning">Warning</span>
+                                    <span t-if="eval.status_color == 'red'" class="badge rounded-pill text-bg-danger">Weak</span>
+                                    <span t-if="eval.status_color == 'gray'" class="badge rounded-pill text-bg-secondary">Absent</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+
+        <!-- Homework Template -->
+        <template id="portal_my_homework" name="My Homework">
+            <t t-call="portal.portal_layout">
+                
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Upload New Homework</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/my/homework" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <div class="mb-3">
+                                        <label for="session_id" class="form-label">Select Session</label>
+                                        <select class="form-select" name="session_id" id="session_id" required="1">
+                                            <option value="">-- Select Session --</option>
+                                            <t t-foreach="available_sessions" t-as="session">
+                                                <option t-att-value="session.id"><t t-esc="session.course_id.name"/> - <t t-esc="session.date" t-options="{'widget': 'date'}"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="file" class="form-label">Homework File (PDF, Image, Audio)</label>
+                                        <input class="form-control" type="file" id="file" name="file" required="1"/>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">Upload</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">My Submissions</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table mb-0 table-hover">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Date Submitted</th>
+                                            <th>Session</th>
+                                            <th>File Name</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="homeworks" t-as="hw">
+                                            <td><span t-field="hw.create_date" t-options="{'widget': 'date'}"/></td>
+                                            <td><span t-field="hw.session_id.name"/></td>
+                                            <td><span t-field="hw.filename"/></td>
+                                            <td>
+                                                <span t-if="hw.state == 'submitted'" class="badge rounded-pill text-bg-warning">Submitted</span>
+                                                <span t-if="hw.state == 'reviewed'" class="badge rounded-pill text-bg-success">Reviewed</span>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="not homeworks">
+                                            <td colspan="4" class="text-center text-muted py-4">No homework submitted yet.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
+

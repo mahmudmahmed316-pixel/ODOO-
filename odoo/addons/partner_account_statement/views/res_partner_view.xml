@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_account_statement_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.account.statement.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="account_statement_tab" string="كشف حساب ">
+                    <group>
+                        <group string="Customer Summary (Sales)" name="customer_sum">
+                            <label for="customer_total_invoices"/>
+                            <div class="o_row">
+                                <field name="اجمالي فواتير المبيعات " decoration-info="customer_total_invoices != 0"/>
+                                <button name="action_view_customer_invoices_details" type="object" icon="fa-list" title="View Details" class="btn-link"/>
+                            </div>
+                            
+                            <label for="اجمالي المدفوعات "/>
+                            <div class="o_row">
+                                <field name="اجمالي المدفوعات" decoration-success="customer_total_payments != 0"/>
+                                <button name="action_view_customer_payments_details" type="object" icon="fa-list" title="View Details" class="btn-link"/>
+                            </div>
+                            
+                            <separator/>
+                            <field name="customer_balance" decoration-bf="1" decoration-info="customer_balance != 0"/>
+                        </group>
+                        
+                        <group string="Vendor Summary (Purchases)" name="vendor_sum">
+                            <label for="vendor_total_bills"/>
+                            <div class="o_row">
+                                <field name="vendor_total_bills" decoration-warning="vendor_total_bills != 0"/>
+                                <button name="action_view_vendor_bills_details" type="object" icon="fa-list" title="View Details" class="btn-link"/>
+                            </div>
+                            
+                            <label for="vendor_total_payments"/>
+                            <div class="o_row">
+                                <field name="vendor_total_payments" decoration-success="vendor_total_payments != 0"/>
+                                <button name="action_view_vendor_payments_details" type="object" icon="fa-list" title="View Details" class="btn-link"/>
+                            </div>
+                            
+                            <separator/>
+                            <field name="vendor_balance" decoration-bf="1" decoration-warning="vendor_balance != 0"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Net Financial Position / الخلاصة المالية">
+                        <group>
+                            <field name="customer_total_invoices" string="Total Invoices / إجمالي الفواتير"/>
+                            <field name="vendor_total_bills" string="Total Vendor Bills / إجمالي فواتير المورد"/>
+                            <field name="final_balance" string="Final Net Balance / الرصيد النهائي" decoration-bf="1" decoration-danger="final_balance &gt; 0" decoration-success="final_balance &lt; 0"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

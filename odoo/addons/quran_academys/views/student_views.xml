@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Student Search View -->
+        <record id="view_academy_student_search" model="ir.ui.view">
+            <field name="name">academy.student.search</field>
+            <field name="model">academy.student</field>
+            <field name="arch" type="xml">
+                <search string="Search Students">
+                    <field name="name"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="parent_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Parent" name="group_by_parent" context="{'group_by': 'parent_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Student Kanban View -->
+        <record id="view_academy_student_kanban" model="ir.ui.view">
+            <field name="name">academy.student.kanban</field>
+            <field name="model">academy.student</field>
+            <field name="arch" type="xml">
+                <kanban class="o_res_partner_kanban" sample="1">
+                    <field name="id"/>
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="phone"/>
+                    <field name="avatar_128"/>
+                    <field name="remaining_sessions"/>
+                    <field name="active_subscription_id"/>
+                    <templates>
+                        <t t-name="card">
+                            <div class="d-flex flex-row">
+                                <aside>
+                                    <field name="avatar_128" widget="image" options="{'preview_image': 'avatar_128'}" class="o_kanban_image_fill_left" alt="Student Image"/>
+                                </aside>
+                                <main class="ps-2 ps-md-3">
+                                    <div class="mb-1">
+                                        <field name="name" class="fw-bold fs-5"/>
+                                    </div>
+                                    <div t-if="record.email.raw_value" class="text-muted small">
+                                        <i class="fa fa-envelope me-1"/> <field name="email"/>
+                                    </div>
+                                    <div t-if="record.phone.raw_value" class="text-muted small">
+                                        <i class="fa fa-phone me-1"/> <field name="phone"/>
+                                    </div>
+                                    <div class="mt-2">
+                                        <t t-if="record.active_subscription_id.raw_value">
+                                            <span class="badge rounded-pill text-bg-success">
+                                                <t t-esc="record.remaining_sessions.value"/> Sessions Left
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge rounded-pill text-bg-danger">No Active Plan</span>
+                                        </t>
+                                    </div>
+                                </main>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Student Tree View -->
+        <record id="view_academy_student_tree" model="ir.ui.view">
+            <field name="name">academy.student.tree</field>
+            <field name="model">academy.student</field>
+            <field name="arch" type="xml">
+                <list string="Students">
+                    <field name="name"/>
+                    <field name="phone"/>
+                    <field name="email"/>
+                    <field name="remaining_sessions" string="Remaining Sessions"/>
+                    <field name="course_ids" widget="many2many_tags"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Student Form View -->
+        <record id="view_academy_student_form" model="ir.ui.view">
+            <field name="name">academy.student.form</field>
+            <field name="model">academy.student</field>
+            <field name="arch" type="xml">
+                <form string="Student">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="%(action_academy_subscription)d" type="action" class="oe_stat_button" icon="fa-refresh" context="{'search_default_student_id': id, 'default_student_id': id}">
+                                <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
+                            </button>
+                            <button name="%(action_academy_session)d" type="action" class="oe_stat_button" icon="fa-calendar" context="{'search_default_student_id': id}">
+                                <field name="session_count" widget="statinfo" string="Sessions"/>
+                            </button>
+                        </div>
+                        <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'avatar_128'}"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Student Name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id" invisible="1"/>
+                                <field name="parent_id"/>
+                                <field name="user_id" domain="[('share', '=', True)]"/>
+                                <field name="phone"/>
+                                <field name="email"/>
+                            </group>
+                            <group>
+                                <field name="course_ids" widget="many2many_tags"/>
+                                <field name="active_subscription_id" readonly="1"/>
+                                <field name="remaining_sessions" invisible="not active_subscription_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Schedule" name="schedule">
+                                <field name="schedule_ids">
+                                    <list editable="bottom">
+                                        <field name="day_of_week"/>
+                                        <field name="time_from" widget="float_time"/>
+                                        <field name="time_to" widget="float_time"/>
+                                        <field name="teacher_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Subscriptions" name="subscriptions">
+                                <field name="subscription_ids" context="{'default_student_id': id}">
+                                    <list decoration-success="state == 'active'">
+                                        <field name="name"/>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
+                                        <field name="remaining_sessions"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'active'" decoration-info="state == 'draft'"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Sessions Evaluated" name="sessions">
+                                <field name="session_line_ids" readonly="1">
+                                    <list>
+                                        <field name="session_id"/>
+                                        <field name="attendance"/>
+                                        <field name="recitation_level"/>
+                                        <field name="memorization"/>
+                                        <field name="status_color" widget="badge" decoration-info="status_color == 'blue'" decoration-success="status_color == 'green'" decoration-warning="status_color == 'yellow'" decoration-danger="status_color == 'red'"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Homeworks" name="homeworks">
+                                <field name="homework_ids" readonly="1">
+                                    <list>
+                                        <field name="session_id"/>
+                                        <field name="filename"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'reviewed'" decoration-info="state == 'submitted'"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for Student -->
+        <record id="action_academy_student" model="ir.actions.act_window">
+            <field name="name">Students</field>
+            <field name="res_model">academy.student</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="search_view_id" ref="view_academy_student_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first student!</p>
+        </field>
+        </record>
+
+        <!-- Menu for Student -->
+        <menuitem id="menu_academy_student"
+                  name="Students"
+                  parent="menu_academy_operations"
+                  action="action_academy_student"
+                  sequence="10"/>
+    </data>
+</odoo>
+

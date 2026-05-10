@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <!-- Add class to the Dropdown container -->
+        <xpath expr="//div[hasclass('o_navbar_apps_menu')]/Dropdown" position="attributes">
+            <attribute name="menuClass" add="o_premium_apps_dashboard" separator=" "/>
+        </xpath>
+
+        <!-- Replace the items with icon-enabled versions -->
+        <xpath expr="//DropdownItem" position="replace">
+            <DropdownItem
+              t-foreach="apps"
+              t-as="app"
+              t-key="app.id"
+              class="{ 'o_app': true, 'o_premium_app_item': true, focus: menuService.getCurrentApp() === app }"
+              onSelected="() => this.onNavBarDropdownItemSelection(app)"
+              attrs="{ href: getMenuItemHref(app), 'data-menu-xmlid': app.xmlid, 'data-section': app.id }"
+            >
+                <div class="o_app_icon_container">
+                    <img t-if="app.webIconData" t-att-src="app.webIconData" class="o_app_icon"/>
+                    <div t-else="" class="o_app_icon_fallback">📁</div>
+                </div>
+                <span class="o_app_name" t-esc="app.name"/>
+            </DropdownItem>
+        </xpath>
+    </t>
+</templates>

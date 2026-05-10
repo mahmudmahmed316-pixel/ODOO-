@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_studio_custom_field_list" model="ir.ui.view">
+        <field name="name">studio.custom.field.list</field>
+        <field name="model">studio.custom.field</field>
+        <field name="arch" type="xml">
+            <list string="Studio Fields">
+                <field name="field_label"/>
+                <field name="name"/>
+                <field name="model_id"/>
+                <field name="ttype"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'active'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_studio_custom_field_form" model="ir.ui.view">
+        <field name="name">studio.custom.field.form</field>
+        <field name="model">studio.custom.field</field>
+        <field name="arch" type="xml">
+            <form string="Studio Field Builder">
+                <header>
+                    <button name="action_apply_changes" string="Apply to System" type="object" class="btn-primary" invisible="state == 'active'"/>
+                    <button name="action_apply_changes" string="Update Changes" type="object" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="field_label" placeholder="e.g. Birthday Note"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Field Definition">
+                            <field name="name" placeholder="technical_name"/>
+                            <field name="ttype"/>
+                            <field name="model_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="UI Placement">
+                            <field name="target_view_id" options="{'no_create': True}"/>
+                            <field name="xpath_expression"/>
+                            <field name="position"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Warning!</strong> Applying changes will reload the Odoo registry. This may take a few seconds and affect active users.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_studio_lite" model="ir.actions.act_window">
+        <field name="name">Studio Lite</field>
+        <field name="res_model">studio.custom.field</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_studio_lite_root" name="Studio Lite" sequence="1" web_icon="community_studio_lite,static/description/icon.png"/>
+    <menuitem id="menu_studio_lite_fields" name="Custom Fields" parent="menu_studio_lite_root" action="action_studio_lite" sequence="10"/>
+
+</odoo>

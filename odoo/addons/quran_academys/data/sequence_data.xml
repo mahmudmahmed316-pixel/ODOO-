@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequence for Academy Session -->
+        <record id="seq_academy_session" model="ir.sequence">
+            <field name="name">Academy Session</field>
+            <field name="code">academy.session</field>
+            <field name="prefix">SESS/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

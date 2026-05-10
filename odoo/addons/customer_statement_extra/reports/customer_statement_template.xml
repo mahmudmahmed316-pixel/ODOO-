@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_customer_statement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <h2>Customer Statement</h2>
+                            <h3 t-field="o.name"/>
+                        </div>
+
+                        <div class="row mt32 mb32">
+                            <div class="col-6">
+                                <strong>Date:</strong> <span t-esc="datetime.date.today()" t-options='{"widget": "date"}'/><br/>
+                                <strong>Customer Address:</strong>
+                                <div t-field="o.self" t-options='{"widget": "contact", "fields": ["address", "phone"], "no_marker": True}'/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <div class="card p-3">
+                                    <strong>Summary Statistics</strong>
+                                    <hr/>
+                                    <div>Total Sales Count: <span t-field="o.customer_sales_count"/></div>
+                                    <div>Total Sales Amount: <span t-field="o.customer_total_sales_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                    <div>Total Payments Made: <span t-field="o.total_payments_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                    <hr/>
+                                    <div style="font-size: 1.2em;"><strong>Remaining Balance: </strong><span t-field="o.customer_balance" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 style="color: #8B4513; border-bottom: 2px solid #8B4513; padding-bottom: 5px;">Mبيعات - Sales Activity</h4>
+                        <table class="table table-sm o_main_table mt16">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;">
+                                    <th>Date التاريخ</th>
+                                    <th>Reference المرجع</th>
+                                    <th class="text-right">Amount المبلغ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="invoices" t-value="env['account.move'].search([('partner_id', '=', o.id), ('state', '=', 'posted'), ('move_type', '=', 'out_invoice')], limit=15, order='invoice_date desc')"/>
+                                <tr t-foreach="invoices" t-as="i">
+                                    <td><span t-field="i.invoice_date"/></td>
+                                    <td>فاتورة: <span t-field="i.name"/></td>
+                                    <td class="text-right"><span t-field="i.amount_total" t-options='{"widget": "monetary", "display_currency": i.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 class="mt32" style="color: #2E8B57; border-bottom: 2px solid #2E8B57; padding-bottom: 5px;">دفعات - Payment Activity</h4>
+                        <table class="table table-sm o_main_table mt16">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;">
+                                    <th>Date التاريخ</th>
+                                    <th>Method طريقة الدفع</th>
+                                    <th>Reference المرجع</th>
+                                    <th class="text-right">Amount المبلغ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="payments" t-value="env['account.payment'].search([('partner_id', 'child_of', o.commercial_partner_id.id), ('state', 'not in', ['draft', 'cancel'])], limit=15, order='date desc')"/>
+                                <tr t-foreach="payments" t-as="p">
+                                    <td><span t-field="p.date"/></td>
+                                    <td><span t-field="p.journal_id.name"/></td>
+                                    <td>دفعة: <span t-field="p.name"/></td>
+                                    <td class="text-right"><span t-field="p.amount" t-options='{"widget": "monetary", "display_currency": p.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

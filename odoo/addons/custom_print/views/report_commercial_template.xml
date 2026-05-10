@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom Layout with Bilingual Header -->
+    <template id="external_layout_commercial">
+        <div class="header" style="border-bottom: 2px solid #1a1a2e;">
+            <div class="row">
+                <div class="col-4 text-left" style="font-size: 14px; font-weight: bold; color: #1a4d80;">
+                    <div t-field="res_company.display_name"/>
+                    <div style="font-size: 10px; font-weight: normal;">
+                        EGYPTIAN MARKETING CO. FOR<br/>
+                        PHOSPHATE AND FERTILIZERS (EMPHCO)
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <img t-if="res_company.logo" t-att-src="image_data_uri(res_company.logo)" style="max-height: 80px;" alt="Logo"/>
+                </div>
+                <div class="col-4 text-right" dir="rtl" style="font-size: 15px; font-weight: bold; color: #1a4d80; font-family: 'Amiri', serif;">
+                    الشركة المصرية لتسويق الفوسفات<br/>
+                    والأسمدة الفوسفاتية (إيمفكو)
+                </div>
+            </div>
+        </div>
+
+        <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id">
+            <t t-out="0"/>
+        </div>
+
+        <div class="footer o_standard_footer">
+            <div class="text-center" style="border-top: 1px solid black;">
+                <ul class="list-inline mb4">
+                    <li t-if="res_company.phone" class="list-inline-item">Phone: <span t-field="res_company.phone"/></li>
+                    <li t-if="res_company.email" class="list-inline-item">Email: <span t-field="res_company.email"/></li>
+                    <li t-if="res_company.website" class="list-inline-item">Web: <span t-field="res_company.website"/></li>
+                </ul>
+                <div t-if="report_type == 'pdf'" class="text-muted">
+                    Page: <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Main Report Template -->
+    <template id="report_commercial_invoice">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="custom_print.external_layout_commercial">
+                    <div class="page" style="font-family: 'Inter', sans-serif;">
+                        <h2 class="text-center" style="margin-top: 20px; color: #1a4d80; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                            Commercial Invoice No. <span t-field="o.name"/>
+                        </h2>
+
+                        <!-- Metadata Table -->
+                        <div class="row mt32 mb32" style="font-size: 13px;">
+                            <div class="col-6">
+                                <strong>DATE:</strong> <span t-field="o.date_order" t-options='{"widget": "date"}'/><br/>
+                                <strong>MESSRS:</strong> <span t-field="o.partner_id.name"/><br/>
+                                <strong>LOADING PORT:</strong> <span t-field="o.x_studio_loading_port" t-if="'x_studio_loading_port' in o._fields"/><br/>
+                                <strong>DELIVERY TERMS:</strong> <span t-field="o.incoterm.name" t-if="o.incoterm"/><br/>
+                            </div>
+                            <div class="col-6">
+                                <strong>DISCHARGE PORT:</strong> <span t-field="o.x_studio_discharge_port" t-if="'x_studio_discharge_port' in o._fields"/><br/>
+                                <strong>VESSEL NAME:</strong> <span t-field="o.x_studio_vessel_name" t-if="'x_studio_vessel_name' in o._fields"/><br/>
+                                <strong>PRODUCER:</strong> <span t-field="res_company.country_id.name"/><br/>
+                            </div>
+                        </div>
+
+                        <!-- Main Items Table -->
+                        <table class="table table-bordered" style="border: 2px solid #1a4d80;">
+                            <thead style="background-color: #f0f4f8; color: #1a4d80;">
+                                <tr>
+                                    <th class="text-center">No.</th>
+                                    <th>Description</th>
+                                    <th class="text-right">UNIT PRICE</th>
+                                    <th class="text-center">Weight MT</th>
+                                    <th class="text-right">Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="i" t-value="1"/>
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <tr>
+                                        <td class="text-center"><t t-esc="i"/></td>
+                                        <td><span t-field="line.name"/></td>
+                                        <td class="text-right"><span t-field="line.price_unit"/></td>
+                                        <td class="text-center"><span t-field="line.product_uom_qty"/></td>
+                                        <td class="text-right"><span t-field="line.price_subtotal"/></td>
+                                    </tr>
+                                    <t t-set="i" t-value="i+1"/>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Bank Details Grid -->
+                        <div class="mt32">
+                            <table class="table table-bordered" style="font-size: 12px;">
+                                <tr>
+                                    <td style="background-color: #f9f9f9; width: 30%;"><strong>Bank name:</strong></td>
+                                    <td><span t-field="res_company.partner_id.bank_ids[0].bank_id.name" t-if="res_company.partner_id.bank_ids"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f9f9f9;"><strong>Account Holder Name:</strong></td>
+                                    <td><span t-field="res_company.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f9f9f9;"><strong>Account No:</strong></td>
+                                    <td><span t-field="res_company.partner_id.bank_ids[0].acc_number" t-if="res_company.partner_id.bank_ids"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f9f9f9;"><strong>IBAN:</strong></td>
+                                    <td><span t-field="res_company.partner_id.bank_ids[0].acc_number" t-if="res_company.partner_id.bank_ids"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #f9f9f9;"><strong>Currency:</strong></td>
+                                    <td><span t-field="o.currency_id.name"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Signatures -->
+                        <div class="row mt64 text-center" style="font-size: 12px; margin-top: 100px;">
+                            <div class="col-4">
+                                <p><strong>Prepared by</strong></p>
+                                <div style="border-top: 1px solid #333; width: 80%; margin: 40px auto 0;"></div>
+                            </div>
+                            <div class="col-4">
+                                <p><strong>Revised by</strong></p>
+                                <div style="border-top: 1px solid #333; width: 80%; margin: 40px auto 0;"></div>
+                            </div>
+                            <div class="col-4">
+                                <p><strong>Sales &amp; Marketing General Manager</strong></p>
+                                <div style="border-top: 1px solid #333; width: 80%; margin: 40px auto 0;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
