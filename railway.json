@@ -1,0 +1,6 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "deploy": {
+    "startCommand": "odoo --db_host=$HOST --db_port=$PORT --db_user=$USER --db_password=$PASSWORD"
+  }
+}
