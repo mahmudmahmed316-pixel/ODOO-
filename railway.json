@@ -3,8 +3,5 @@
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "Dockerfile"
-  },
-  "deploy": {
-    "startCommand": "sh -c 'export HOST=$PGHOST PORT=$PGPORT USER=$PGUSER PASSWORD=$PGPASSWORD; /entrypoint.sh odoo -d $PGDATABASE'"
   }
 }
